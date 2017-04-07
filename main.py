@@ -52,11 +52,20 @@ def servicedesk_call(endpoint, call, settings):
 
 
 def get_incident(incident_number):
-    """Build get_incident call."""
+    """Get incident details."""
     endpoint = "Incident.IncidentHttpSoap11Endpoint/"
     call = "getIncident"
     settings = "<wrap:ticketIdentifier>{0}</wrap:ticketIdentifier>\
         ".format(incident_number)
     return servicedesk_call(endpoint, call, settings)
 
-print get_incident("300-275476")
+
+def list_service_requests():
+    """List Service Requests."""
+    endpoint = "ServiceRequest.ServiceRequestHttpSoap11Endpoint/"
+    call = "listServiceRequests"
+    settings = "<wrap:searchText></wrap:searchText>"
+    return servicedesk_call(endpoint, call, settings)
+
+# print get_incident("300-275476")
+print list_service_requests()
