@@ -39,7 +39,6 @@ def get_body(call, settings):
        </soapenv:Body>
     </soapenv:Envelope>
     """.format(USERNAME, PASSWORD, RESPONSE_FORMAT, call, settings)
-
     return body
 
 
@@ -60,12 +59,24 @@ def get_incident(incident_number):
     return servicedesk_call(endpoint, call, settings)
 
 
-def list_service_requests():
+def list_service_requests(search):
     """List Service Requests."""
     endpoint = "ServiceRequest.ServiceRequestHttpSoap11Endpoint/"
     call = "listServiceRequests"
-    settings = "<wrap:searchText></wrap:searchText>"
+    settings = "<wrap:searchText>{0}</wrap:searchText>\
+        ".format(search)
+    return servicedesk_call(endpoint, call, settings)
+
+
+def get_service_request(sr_number):
+    """Get Service Request."""
+    endpoint = "ServiceRequest.ServiceRequestHttpSoap11Endpoint/"
+    call = "getServiceRequest"
+    settings = "<wrap:ticketIdentifier>{0}</wrap:ticketIdentifier>\
+        ".format(sr_number)
     return servicedesk_call(endpoint, call, settings)
 
 # print get_incident("300-275476")
-print list_service_requests()
+# print list_service_requests("")
+# print get_service_request("100-621268")
+print list_service_requests("Administration")
