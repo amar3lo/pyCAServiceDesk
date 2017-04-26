@@ -1,2 +1,4 @@
 *.pyc
 myauth.py*
+pickle.dat
+tests.py
