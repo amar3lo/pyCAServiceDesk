@@ -292,4 +292,5 @@ def test():
     return_code = schedule_maintenance_mode(t, s)
     return status[return_code]
 
-print "Test was a " + str(test())
+if __name__ == "__main__":
+    print "Test was a " + str(test())
