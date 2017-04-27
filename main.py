@@ -8,8 +8,6 @@ import re
 import json
 import pickle
 import requests
-from dateutil import parser
-from datetime import datetime
 from myauth import USERNAME, PASSWORD, GROUP
 
 HOST = "sm1.saas.ca.com"
@@ -21,7 +19,7 @@ HEADERS = {
     "Content-Type": "text/xml;charset=UTF-8",
 }
 
-ENCODED_FILE = "pickle.dat"
+ENCODED_FILE = "TicketInformation.dat"
 
 
 def get_body(call, settings):
@@ -186,15 +184,6 @@ def cache_new_ticket_info(t):
         new_ticket[ticket_id][psd] = ticket_info[psd]
         new_ticket[ticket_id][ped] = ticket_info[ped]
         new_ticket[ticket_id][ptn] = ticket_info[ptn]
-        """
-        try:
-            dt = parser.parse(ticket_info[psd])
-            today = datetime.today()
-            # if (dt.date() == today.date()):
-                # print ticket_id + " goes today."
-        except:
-            print "No planned start time: " + ticket_id
-        """
     except:
         print "Failed to connect to get_task_ticket endpoint."
         # Set modified date to Error so it'll update next run
@@ -236,36 +225,6 @@ def get_current_task_tickets():
     return tickets
 
 
-def convert_datetime_to_epoch(dt):
-    """Convert datetime format to epoch."""
-    import time
-    return time.mktime(dt.timetuple())
-
-
-def schedule_maintenance_mode(ticket, server_list):
-    """
-    Schedule maintenance mode in CA UIM.
-
-    Status: Development
-    """
-    try:
-        start_time = ticket["Planned Start Date"]
-        end_time = ticket["Planned End Date"]
-        dt_start = parser.parse(start_time)
-        dt_end = parser.parse(end_time)
-        start_time_epoch = convert_datetime_to_epoch(dt_start)
-        end_time_epoch = convert_datetime_to_epoch(dt_end)
-    except:
-        print "Problem getting start/end times.  Inform ticket creator."
-        return 1
-    for server in server_list:
-        current_time = str(datetime.now())
-        print current_time + " server=" + server + ", start_time=" \
-            + start_time + ", end_time=" + end_time + ", start_time_epoch=" \
-            + str(start_time_epoch) + ", end_time_epoch=" + str(end_time_epoch)
-    return 0
-
-
 def refresh_cache(tickets=dict()):
     """Refresh ticket cache."""
     if (len(tickets) == 0):
@@ -278,19 +237,3 @@ def get_ticket_information(ticket_id):
     tickets = get_current_task_tickets()
     refresh_cache(tickets)
     return tickets[ticket_id]
-
-
-def test():
-    """Run test cases."""
-    status = {
-        0: "Success",
-        1: "Failure"
-    }
-    ticket = "500-326101"
-    t = get_ticket_information(ticket)
-    s = get_config_items_associated_with_ticket(t)
-    return_code = schedule_maintenance_mode(t, s)
-    return status[return_code]
-
-if __name__ == "__main__":
-    print "Test was a " + str(test())

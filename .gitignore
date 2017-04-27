@@ -1,4 +1,4 @@
 *.pyc
 myauth.py*
-pickle.dat
+*.dat
 tests.py
