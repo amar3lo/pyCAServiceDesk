@@ -251,15 +251,15 @@ def schedule_maintenance_mode(ticket, server_list):
     try:
         start_time = ticket["Planned Start Date"]
         end_time = ticket["Planned End Date"]
-    except:
-        print "Data missing from ticket.  Inform ticket creator."
-        return 1
-    for server in server_list:
-        current_time = str(datetime.now())
         dt_start = parser.parse(start_time)
         dt_end = parser.parse(end_time)
         start_time_epoch = convert_datetime_to_epoch(dt_start)
         end_time_epoch = convert_datetime_to_epoch(dt_end)
+    except:
+        print "Problem getting start/end times.  Inform ticket creator."
+        return 1
+    for server in server_list:
+        current_time = str(datetime.now())
         print current_time + " server=" + server + ", start_time=" \
             + start_time + ", end_time=" + end_time + ", start_time_epoch=" \
             + str(start_time_epoch) + ", end_time_epoch=" + str(end_time_epoch)
