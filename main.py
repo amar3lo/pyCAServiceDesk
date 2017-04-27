@@ -8,7 +8,7 @@ import re
 import json
 import pickle
 import requests
-# from dateutil import parser
+from dateutil import parser
 from datetime import datetime
 from myauth import USERNAME, PASSWORD, GROUP
 
@@ -236,6 +236,12 @@ def get_current_task_tickets():
     return tickets
 
 
+def convert_datetime_to_epoch(dt):
+    """Convert datetime format to epoch."""
+    import time
+    return time.mktime(dt.timetuple())
+
+
 def schedule_maintenance_mode(ticket, server_list):
     """
     Schedule maintenance mode in CA UIM.
@@ -250,20 +256,27 @@ def schedule_maintenance_mode(ticket, server_list):
         return 1
     for server in server_list:
         current_time = str(datetime.now())
+        dt_start = parser.parse(start_time)
+        dt_end = parser.parse(end_time)
+        start_time_epoch = convert_datetime_to_epoch(dt_start)
+        end_time_epoch = convert_datetime_to_epoch(dt_end)
         print current_time + " server=" + server + ", start_time=" \
-            + start_time + ", end_time=" + end_time
+            + start_time + ", end_time=" + end_time + ", start_time_epoch=" \
+            + str(start_time_epoch) + ", end_time_epoch=" + str(end_time_epoch)
     return 0
 
 
-def refresh_cache():
+def refresh_cache(tickets=dict()):
     """Refresh ticket cache."""
-    tickets = get_current_task_tickets()
+    if (len(tickets) == 0):
+        tickets = get_current_task_tickets()
     cache_tickets_to_disk(tickets)
 
 
 def get_ticket_information(ticket_id):
     """Return information on a specific ticket."""
     tickets = get_current_task_tickets()
+    refresh_cache(tickets)
     return tickets[ticket_id]
 
 
