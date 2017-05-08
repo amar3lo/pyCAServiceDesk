@@ -162,7 +162,7 @@ def get_tickets_from_disk():
 
 def cache_tickets_to_disk(tickets):
     """Write current list of tickets to disk."""
-    with open(ENCODED_FILE, 'wb') as handle_write:
+    with open(ENCODED_FILE, 'wb+') as handle_write:
         pickle.dump(tickets, handle_write, protocol=pickle.HIGHEST_PROTOCOL)
 
 
@@ -184,6 +184,10 @@ def cache_new_ticket_info(t):
         new_ticket[ticket_id][psd] = ticket_info[psd]
         new_ticket[ticket_id][ped] = ticket_info[ped]
         new_ticket[ticket_id][ptn] = ticket_info[ptn]
+        new_ticket[ticket_id]["Class"] = ticket_info["Class"]
+        new_ticket[ticket_id]["Category"] = ticket_info["Category"]
+        new_ticket[ticket_id]["Type"] = ticket_info["Type"]
+        new_ticket[ticket_id]["Item"] = ticket_info["Item"]
     except:
         print "Failed to connect to get_task_ticket endpoint."
         # Set modified date to Error so it'll update next run
