@@ -4,11 +4,14 @@ CA Servicedesk API
 Author: Erik Horton
 
 """
+import os
 import re
 import json
 import pickle
 import requests
 from myauth import USERNAME, PASSWORD, GROUP
+
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 HOST = "sm1.saas.ca.com"
 API = "/NimsoftServiceDesk/servicedesk/webservices/"
@@ -19,7 +22,8 @@ HEADERS = {
     "Content-Type": "text/xml;charset=UTF-8",
 }
 
-ENCODED_FILE = "TicketInformation.dat"
+DATA = "TicketInformation.dat"
+ENCODED_FILE = os.path.join(CURRENT_DIR, DATA)
 
 
 def get_body(call, settings):
@@ -136,9 +140,7 @@ def get_config_items_associated_with_ticket(ticket):
         # Task did not have CIs.  Check parent ticket
         parent_id = ticket["parent ticket number"]
         content = list_related_configuration_items(parent_id)
-        # print content
         server_dict = return_dictionary_from_response(content)
-        # print server_dict
 
     # Create list of servers assocaited with ticket
     for server in server_dict:
