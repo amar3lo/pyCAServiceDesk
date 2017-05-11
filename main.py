@@ -220,7 +220,7 @@ def cache_new_ticket_info(t):
         new_ticket[ticket_id]["Item"] = ticket_info["Item"]
         new_ticket[ticket_id]["Row ID"] = ticket_info["Row ID"]
     except:
-        print "Failed to connect to get_task_ticket endpoint: {0}".format(ticket_id)
+        print "Connect to getTaskTicket endpoint failed: {0}".format(ticket_id)
         # Set modified date to Error so it'll update next run
         new_ticket[ticket_id][md] = "Error"
 
