@@ -220,7 +220,7 @@ def cache_new_ticket_info(t):
         new_ticket[ticket_id]["Item"] = ticket_info["Item"]
         new_ticket[ticket_id]["Row ID"] = ticket_info["Row ID"]
     except:
-        print "Failed to connect to get_task_ticket endpoint."
+        print "Failed to connect to get_task_ticket endpoint: {0}".format(ticket_id)
         # Set modified date to Error so it'll update next run
         new_ticket[ticket_id][md] = "Error"
 
@@ -232,21 +232,22 @@ def get_current_task_tickets():
     content = list_task_tickets(GROUP)
     filtered_tickets = return_dictionary_from_response(content)
     md = "Modified Date"
-
     ds, tickets = get_tickets_from_disk()
     if not ds:
         # Could not read file off disk.  Query for all current info
         tickets = dict()
         c = 0
         for t in filtered_tickets:
-            if (t["Assigned Group"] == GROUP) and (t["Status"] == "Queued"):
+            if (t["Assigned Group"] == GROUP) \
+                and (t["Status"] == "Queued" or t["Status"] == "Active"):
                 # Build the new ticket and assign it to dictionary
                 tickets.update(cache_new_ticket_info(t))
                 c += 1
     else:
         # Information was received off disk.  Only update modified tickets
         for t in filtered_tickets:
-            if (t["Assigned Group"] == GROUP) and (t["Status"] == "Queued"):
+            if (t["Assigned Group"] == GROUP) \
+                and (t["Status"] == "Queued" or t["Status"] == "Active"):
                 # If ticket is new
                 if (t["Case#"] not in tickets):
                     # Build the new ticket and assign it to dictionary
