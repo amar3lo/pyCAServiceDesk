@@ -111,6 +111,34 @@ def list_related_configuration_items(ticket_id):
     return servicedesk_call(endpoint, call, settings)
 
 
+def update_task_ticket(ticket_id, row_id, data_dict):
+    """Update a task ticket with information from dictionary."""
+    endpoint = "TaskTicket.TaskTicketHttpSoap11Endpoint/"
+    call = "updateTaskTicket"
+    data = ""
+    # For key,pair in data_dict, build string for settings
+    for key in data_dict:
+        data+= "<xsd:{0}>{1}</xsd:{0}>".format(key, data_dict[key])
+
+    settings = """
+        <wrap:taskBean>
+            <xsd:row_id>{1}</xsd:row_id>
+            <xsd:ticket_identifier>{0}</xsd:ticket_identifier>
+            {2}
+        </wrap:taskBean>
+    """.format(ticket_id, row_id, data)
+    response = servicedesk_call(endpoint, call, settings)
+    if "Selected ticket record is currently being modified" in response:
+        print "Currently being modified"
+        return 1
+    elif "could not resolve the value supplied" in response:
+        print "Malformed criteria"
+        return 1
+    else:
+        print "Request successfully fullfilled"
+        return 0
+
+
 def return_dictionary_from_response(content):
     """Take API response and parse.  Return JSON as python dictionary."""
     # Pull back everything inbetween responseText tags
@@ -190,6 +218,7 @@ def cache_new_ticket_info(t):
         new_ticket[ticket_id]["Category"] = ticket_info["Category"]
         new_ticket[ticket_id]["Type"] = ticket_info["Type"]
         new_ticket[ticket_id]["Item"] = ticket_info["Item"]
+        new_ticket[ticket_id]["Row ID"] = ticket_info["Row ID"]
     except:
         print "Failed to connect to get_task_ticket endpoint."
         # Set modified date to Error so it'll update next run
