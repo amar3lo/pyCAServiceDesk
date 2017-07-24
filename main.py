@@ -132,11 +132,11 @@ def update_task_ticket(ticket_id, row_id, data_dict):
     if "Selected ticket record is currently being modified" in response:
         print "Currently being modified"
         return 1
-    elif "could not resolve the value supplied" in response:
+    elif "Could not resolve the value supplied" in response:
         print "Malformed criteria"
         return 1
     else:
-        print "Update Task Ticket: Request successfully fullfilled"
+        # print "Update Task Ticket: Request successfully fullfilled"
         return 0
 
 
