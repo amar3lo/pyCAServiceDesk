@@ -13,7 +13,8 @@ from myauth import USERNAME, PASSWORD, GROUP
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 
-HOST = "sm1.saas.ca.com"
+# HOST = "sm1.saas.ca.com"
+HOST = "csm3.serviceaide.com"
 API = "/NimsoftServiceDesk/servicedesk/webservices/"
 RESPONSE_FORMAT = "JSON"
 HEADERS = {
@@ -135,7 +136,7 @@ def update_task_ticket(ticket_id, row_id, data_dict):
         print "Malformed criteria"
         return 1
     else:
-        print "Request successfully fullfilled"
+        print "Update Task Ticket: Request successfully fullfilled"
         return 0
 
 
@@ -207,6 +208,7 @@ def cache_new_ticket_info(t):
     # Build ticket
     new_ticket[ticket_id] = dict()
     new_ticket[ticket_id]["id"] = ticket_id
+    new_ticket[ticket_id]["Case#"] = ticket_id
     new_ticket[ticket_id][md] = t[md]
     # Update the ticket data
     try:
@@ -219,6 +221,7 @@ def cache_new_ticket_info(t):
         new_ticket[ticket_id]["Type"] = ticket_info["Type"]
         new_ticket[ticket_id]["Item"] = ticket_info["Item"]
         new_ticket[ticket_id]["Row ID"] = ticket_info["Row ID"]
+        new_ticket[ticket_id]["Status"] = ticket_info["Status"]
     except:
         print "Connect to getTaskTicket endpoint failed: {0}".format(ticket_id)
         # Set modified date to Error so it'll update next run
@@ -239,7 +242,8 @@ def get_current_task_tickets():
         c = 0
         for t in filtered_tickets:
             if (t["Assigned Group"] == GROUP) \
-                and (t["Status"] == "Queued" or t["Status"] == "Active"):
+                and (t["Status"] == "Queued" or t["Status"] == "Active" \
+                or t["Status"] == "New"):
                 # Build the new ticket and assign it to dictionary
                 tickets.update(cache_new_ticket_info(t))
                 c += 1
@@ -247,7 +251,9 @@ def get_current_task_tickets():
         # Information was received off disk.  Only update modified tickets
         for t in filtered_tickets:
             if (t["Assigned Group"] == GROUP) \
-                and (t["Status"] == "Queued" or t["Status"] == "Active"):
+                and (t["Status"] == "Queued" or t["Status"] == "Active" \
+                or t["Status"] == "New") \
+                or (t["Status"] == "Closed" and t["Closed By"] == "WebServices, NSD"):
                 # If ticket is new
                 if (t["Case#"] not in tickets):
                     # Build the new ticket and assign it to dictionary
@@ -260,13 +266,18 @@ def get_current_task_tickets():
 
     return tickets
 
-
 def refresh_cache(tickets=dict()):
     """Refresh ticket cache."""
     if (len(tickets) == 0):
         tickets = get_current_task_tickets()
     cache_tickets_to_disk(tickets)
 
+def update_cache_for_ticket(t):
+    """Update cache of ticket"""
+    ds, tickets = get_tickets_from_disk()
+    if ds:
+        tickets.update(cache_new_ticket_info(t))
+    cache_tickets_to_disk(tickets)
 
 def get_ticket_information(ticket_id):
     """Return information on a specific ticket."""
